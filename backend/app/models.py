@@ -5,7 +5,6 @@ from enum import Enum
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
-    JSON,
     Boolean,
     CheckConstraint,
     DateTime,
@@ -15,10 +14,14 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     Uuid,
     func,
     text,
 )
+
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -223,8 +226,8 @@ class ItemEvent(IdMixin, CreatedAtMixin, Base):
     event_type: Mapped[ItemEventType] = mapped_column(
         enum_column(ItemEventType, "item_event_type", 32), nullable=False
     )
-    old_value: Mapped[dict[str, object] | None] = mapped_column(JSON)
-    new_value: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    old_value: Mapped[dict[str, object] | None] = mapped_column(JSONB)
+    new_value: Mapped[dict[str, object] | None] = mapped_column(JSONB)
 
     work_item: Mapped[WorkItem] = relationship(back_populates="events")
     actor: Mapped[User] = relationship(back_populates="item_events")
@@ -257,7 +260,7 @@ class OutboxEvent(IdMixin, CreatedAtMixin, Base):
     event_type: Mapped[str] = mapped_column(String(100), nullable=False)
     aggregate_type: Mapped[str] = mapped_column(String(100), nullable=False)
     aggregate_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
-    payload: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    payload: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
     available_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -266,3 +269,18 @@ class OutboxEvent(IdMixin, CreatedAtMixin, Base):
         Integer, nullable=False, default=0, server_default=text("0")
     )
     last_error: Mapped[str | None] = mapped_column(Text)
+
+class IdempotencyKey(IdMixin, CreatedAtMixin, Base):
+    __tablename__ = "idempotency_keys"
+    __table_args__ = (
+        UniqueConstraint("user_id", "key", name="uq_idempotency_user_key"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    key: Mapped[str] = mapped_column(String(255), nullable=False)
+    request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    # NULL while the first request is still in progress
+    response_status: Mapped[int | None] = mapped_column(Integer)
+    response_body: Mapped[dict[str, object] | None] = mapped_column(JSONB)
