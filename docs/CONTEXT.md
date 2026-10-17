@@ -1,33 +1,46 @@
 # Project Context
 
 ## Project
-OpsDesk is a simple shared task board for one team. Its distinguishing feature
-is a required, visible next action on every task, making ownership and handoffs
-clear without a heavyweight operations workflow.
+OpsDesk is an internal web app for coordinating operational work (incidents,
+customer issues, payments, compliance, tasks) across teams. Built for the
+Newtonite Software Engineering Challenge (internship assignment).
+Deadline: Monday 12am. I must be able to explain and modify every part live.
+
+Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
+(~5 decisions + trade-offs), automated tests, known limitations, live demo.
 
 ## Stack
-- Backend: FastAPI, SQLAlchemy 2, Alembic, PostgreSQL, Pydantic, pytest.
+- Backend: FastAPI, SQLAlchemy 2 (sync), Alembic, PostgreSQL, Pydantic v2, pytest.
 - Frontend: React, Vite, TypeScript, TanStack Query, Tailwind CSS.
-- Local database: Docker Compose PostgreSQL on host port `5433`.
+- Local database: Docker Compose PostgreSQL on host port 5433
+  (DATABASE_URL in ignored backend/.env). Never commit .env values.
 
 ## How to work on this project
-- Move one commit-sized step at a time; keep each change small and explain it
-   plainly so I can understand it for a live review.
-- Ask before expanding scope or adding complex features.
-- Keep the source of truth in `docs/SPEC.md` and `docs/INVARIANTS.md`.
-- The current MVP deliberately has no login and is for local/demo use only.
+- One small commit per step, with a LEARNING_LOG.md line each.
+- I write the critical code (claim, versioning, idempotency, state machine,
+  authz); Claude reviews it. Boilerplate, seed and UI layout can be generated.
+- Source of truth: docs/SPEC.md and docs/INVARIANTS.md.
+- Ask before expanding scope. No MCP unless everything else is finished.
 - Do not delete or reset the existing PostgreSQL volume.
 
 ## Current status
-- Done: original project scaffold and schema are retained; migration
-  `0002_simple_tasks` adds a separate table for the simplified task board.
-- Done: basic task model, request/response schemas, and CRUD API routes.
-- Now: completing the simple board UI, tests, and run instructions.
-- Next: run migrations and test the whole local app; only then pick the next
-  small feature based on what the demo needs.
+- Done: docs, docker-compose, FastAPI skeleton (/health), models.py (User,
+  Team, Membership, WorkItem, ItemEvent, Comment, OutboxEvent,
+  IdempotencyKey), migration 0001, frontend scaffold (health page).
+- Removed: the simple task-board experiment (no login, no teams).
+- Now: migration 0002 (hardening + next_action).
 
-## Local run settings
-The Docker Compose database is published on host port `5433` to avoid the
-existing PostgreSQL service on `5432`. Set `DATABASE_URL` in the ignored
-`backend/.env` to `postgresql+psycopg://opsdesk:opsdesk@localhost:5433/opsdesk`.
-Never commit or share `.env` values.
+## Next (one commit each)
+1. Migration 0002: state/owner CheckConstraint, item_events immutability
+   trigger, dashboard indexes, next_action column.
+2. Seed script (2 teams, 4 roles, one multi-team user, varied items).
+3. JWT auth (login, get_current_user).
+4. Permission helper (404 for non-members, role checks).
+5. Transition function (audit + outbox in one transaction).
+6. Atomic claim; versioned update (409).
+7. Idempotency keys.
+8. Comments, events, keyset list, search, dashboard.
+9. Outbox worker with retries.
+10. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
+11. Frontend: login, dashboard, list, detail, optimistic claim.
+12. ENGINEERING_DECISIONS.md, real README, known limitations.
