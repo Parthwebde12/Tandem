@@ -145,6 +145,10 @@ class WorkItem(IdMixin, CreatedAtMixin, Base):
     __tablename__ = "work_items"
     __table_args__ = (
         CheckConstraint("version >= 1", name="ck_work_items_version_positive"),
+        CheckConstraint(                                        # NEW
+            "length(trim(next_action)) > 0",                    # NEW
+            name="ck_work_items_next_action_not_blank",         # NEW
+        ),                                                      # NEW
         CheckConstraint(
             "(state = 'open' AND owner_id IS NULL) OR "
             "(state != 'open' AND owner_id IS NOT NULL)",
