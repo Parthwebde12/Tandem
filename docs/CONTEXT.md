@@ -29,20 +29,21 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
   IdempotencyKey), migrations 0001 + 0002 (next_action, append-only
   item_events trigger), seed script (python -m app.seed --bulk 200),
   JWT auth (POST /auth/login, GET /auth/me, get_current_user),
-  frontend login + protected routes + app shell (teams and roles shown).
+  frontend login + protected routes + app shell (teams and roles shown),
+  team permission dependencies (404 without membership, centralized role
+  checks; backend tests passing).
 - Removed: the simple task-board experiment (no login, no teams).
-- Now: permission helper.
+- Now: transition function.
 
 ## Next (one commit each)
-1. Permission helper (404 when no membership, role checks in one place).
-2. Transition function (audit event + outbox row in one transaction).
-3. Atomic claim; versioned update (409).
-4. Idempotency keys.
-5. Comments, events, keyset list, search, dashboard endpoints.
-6. Outbox worker with retries.
-7. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
-8. Frontend: dashboard, item list, item detail, optimistic claim with 409 handling.
-9. ENGINEERING_DECISIONS.md, real README, known limitations.
+1. Transition function (audit event + outbox row in one transaction).
+2. Atomic claim; versioned update (409).
+3. Idempotency keys.
+4. Comments, events, keyset list, search, dashboard endpoints.
+5. Outbox worker with retries.
+6. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
+7. Frontend: dashboard, item list, item detail, optimistic claim with 409 handling.
+8. ENGINEERING_DECISIONS.md, real README, known limitations.
 
 ## Known gaps to mention in limitations
 - No login rate limiting; no refresh tokens or logout endpoint (tokens expire after 60 min).
