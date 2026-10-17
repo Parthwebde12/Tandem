@@ -1,23 +1,14 @@
 # Database migrations
 
-Run commands from the repository root unless noted otherwise.
+Start PostgreSQL from the repository root with `docker compose up -d db`.
+Compose publishes PostgreSQL on host port `5433`; set `DATABASE_URL` in
+`backend\.env` to match the local template in `backend\.env.example`.
 
-Start PostgreSQL:
-
-```powershell
-docker compose up -d db
-```
-
-Apply migrations from the `backend` directory:
+Apply migrations from the backend directory:
 
 ```powershell
-cd backend
 .\.venv\Scripts\python.exe -m alembic upgrade head
 ```
 
-Alembic reads `DATABASE_URL` from `backend\.env`. Use `backend\.env.example`
-as the template for local configuration.
-
-To remove the schema created by the initial migration, run
-`.\.venv\Scripts\python.exe -m alembic downgrade base` from `backend`.
-This drops the OpsDesk tables and their data.
+The second migration adds the simplified task-board table. Older schema tables
+are left in place to avoid deleting any data.

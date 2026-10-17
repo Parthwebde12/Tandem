@@ -1,36 +1,33 @@
-# Context 
+# Project Context
 
 ## Project
-OpsDesk: internal operations work-item tracker for the Newtonite Software Engineering Challenge.
-Deadline: Monday 12am. I must be able to explain and modify every part in a live review.
+OpsDesk is a simple shared task board for one team. Its distinguishing feature
+is a required, visible next action on every task, making ownership and handoffs
+clear without a heavyweight operations workflow.
 
 ## Stack
-FastAPI, SQLAlchemy 2.0 (sync), Alembic, PostgreSQL, Pydantic v2, pytest;
-React + Vite + TypeScript + TanStack Query + Tailwind; Docker Compose.
+- Backend: FastAPI, SQLAlchemy 2, Alembic, PostgreSQL, Pydantic, pytest.
+- Frontend: React, Vite, TypeScript, TanStack Query, Tailwind CSS.
+- Local database: Docker Compose PostgreSQL on host port `5433`.
 
-## How I want you to help
-- Explain options and trade-offs first; wait for my choice.
-- Do NOT write the critical code (claim, versioning, idempotency, state machine, authz).
-  Review mine for races, missing authz checks and transaction mistakes.
-- Boilerplate (Docker, seed data, UI layout) you may generate.
-- Keep answers short; use my file paths.
-- Give files as copy-paste code blocks, never zip files.
+## How to work on this project
+- Move one commit-sized step at a time; keep each change small and explain it
+   plainly so I can understand it for a live review.
+- Ask before expanding scope or adding complex features.
+- Keep the source of truth in `docs/SPEC.md` and `docs/INVARIANTS.md`.
+- The current MVP deliberately has no login and is for local/demo use only.
+- Do not delete or reset the existing PostgreSQL volume.
 
-## Conventions
-- Routers are thin; business rules live in backend/app/services/.
-- All state changes go through one transition function, in ONE transaction,
-  writing an audit event (and an outbox row).
-- Keyset pagination only.
-- Source of truth: docs/SPEC.md and docs/INVARIANTS.md.
+## Current status
+- Done: original project scaffold and schema are retained; migration
+  `0002_simple_tasks` adds a separate table for the simplified task board.
+- Done: basic task model, request/response schemas, and CRUD API routes.
+- Now: completing the simple board UI, tests, and run instructions.
+- Next: run migrations and test the whole local app; only then pick the next
+  small feature based on what the demo needs.
 
-## Current status (update after each session)
-- Done:
-  - Repo created (backend/, frontend/, docs/)
-  - docs/SPEC.md + docs/INVARIANTS.md (11 invariants); decisions in SPEC section 10
-  - docker-compose.yml with Postgres 16
-  - FastAPI skeleton: config.py, db.py (session per request), main.py with /health
-  - backend/app/models.py: User, Team, Membership, WorkItem, ItemEvent, Comment, OutboxEvent, IdempotencyKey (JSONB for event/outbox/response payloads)
-  - Commit 3 schema hardening: state/owner consistency constraint, immutable item-event triggers, dashboard partial indexes, and initial Alembic migration
-  - frontend scaffold: Vite + React + TS + Tailwind v4 + TanStack Query + React Router; /api proxy to :8000; api/types.ts mirrors backend enums; Home page shows API health
-- Now: Apply and verify the initial migration against local PostgreSQL (offline SQL generation and model tests pass; Docker was unavailable during verification)
-- Next: Seed demo users/teams, then build JWT authentication; review authorization before implementation
+## Local run settings
+The Docker Compose database is published on host port `5433` to avoid the
+existing PostgreSQL service on `5432`. Set `DATABASE_URL` in the ignored
+`backend/.env` to `postgresql+psycopg://opsdesk:opsdesk@localhost:5433/opsdesk`.
+Never commit or share `.env` values.
