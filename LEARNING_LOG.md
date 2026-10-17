@@ -9,3 +9,4 @@ Format: `DD-MM-YYYY | Decision or lesson | Why it matters (the failure it preven
 - 17-10-2026 | Frontend loads the user from /auth/me and treats a 401 as "logged out" (clears the token) | The UI never trusts a stale token or stored role; the server is the authority.
 - 17-10-2026 | Token kept in localStorage | Simple and survives refresh, but readable by any XSS; listed in known limitations (httpOnly cookie is the safer alternative).
 - 17-10-2026 | Team permission dependencies hide non-member teams with 404 and centralize role checks | Prevents cross-team access and inconsistent authorization rules across endpoints.
+- 17-10-2026 | Workspace overview renders only memberships returned by /auth/me | Keeps the frontend useful before work-item APIs exist without inventing dashboard data.

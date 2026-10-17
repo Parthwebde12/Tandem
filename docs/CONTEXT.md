@@ -31,7 +31,8 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
   JWT auth (POST /auth/login, GET /auth/me, get_current_user),
   frontend login + protected routes + app shell (teams and roles shown),
   team permission dependencies (404 without membership, centralized role
-  checks; backend tests passing).
+  checks; backend tests passing), workspace overview with team membership
+  cards and a no-team empty state.
 - Removed: the simple task-board experiment (no login, no teams).
 - Now: transition function.
 
@@ -42,7 +43,7 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
 4. Comments, events, keyset list, search, dashboard endpoints.
 5. Outbox worker with retries.
 6. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
-7. Frontend: dashboard, item list, item detail, optimistic claim with 409 handling.
+7. Frontend: work-item list, item detail, optimistic claim with 409 handling.
 8. ENGINEERING_DECISIONS.md, real README, known limitations.
 
 ## Known gaps to mention in limitations
