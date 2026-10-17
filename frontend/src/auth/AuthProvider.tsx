@@ -4,20 +4,21 @@ import { ApiError, apiFetch, tokenStore } from "../api/client";
 import type { Me, TokenResponse } from "../api/types";
 import { AuthContext, type AuthState } from "./context";
 
-async function fetchMe(): Promise<Me> {
-  try {
-    return await apiFetch<Me>("/auth/me");
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) {
-      tokenStore.clear(); // expired or invalid token
-    }
-    throw error;
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [hasToken, setHasToken] = useState(() => tokenStore.get() !== null);
+
+  const fetchMe = useCallback(async (): Promise<Me> => {
+    try {
+      return await apiFetch<Me>("/auth/me");
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        tokenStore.clear();
+        setHasToken(false);
+      }
+      throw error;
+    }
+  }, []);
 
   const meQuery = useQuery({
     queryKey: ["me"],
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         staleTime: 0,
       });
     },
-    [queryClient],
+    [fetchMe, queryClient],
   );
 
   const logout = useCallback(() => {

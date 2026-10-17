@@ -10,3 +10,4 @@ Format: `DD-MM-YYYY | Decision or lesson | Why it matters (the failure it preven
 - 17-10-2026 | Token kept in localStorage | Simple and survives refresh, but readable by any XSS; listed in known limitations (httpOnly cookie is the safer alternative).
 - 17-10-2026 | Team permission dependencies hide non-member teams with 404 and centralize role checks | Prevents cross-team access and inconsistent authorization rules across endpoints.
 - 17-10-2026 | Workspace overview renders only memberships returned by /auth/me | Keeps the frontend useful before work-item APIs exist without inventing dashboard data.
+- 17-10-2026 | A 401 from /auth/me clears both the stored token and active auth state | Prevents focus-triggered refetches from repeatedly sending a token the server rejected.
