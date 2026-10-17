@@ -200,6 +200,12 @@ class WorkItem(IdMixin, CreatedAtMixin, Base):
     )
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
+    next_action: Mapped[str] = mapped_column(
+        String(300),
+        nullable=False,
+        default="Needs triage",
+        server_default="Needs triage",
+    )
     type: Mapped[WorkItemType] = mapped_column(
         enum_column(WorkItemType, "work_item_type", 20), nullable=False
     )
