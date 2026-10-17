@@ -19,9 +19,7 @@ from sqlalchemy import (
     func,
     text,
 )
-
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -147,9 +145,42 @@ class WorkItem(IdMixin, CreatedAtMixin, Base):
     __tablename__ = "work_items"
     __table_args__ = (
         CheckConstraint("version >= 1", name="ck_work_items_version_positive"),
+        CheckConstraint(
+            "(state = 'open' AND owner_id IS NULL) OR "
+            "(state != 'open' AND owner_id IS NOT NULL)",
+            name="ck_work_items_state_owner_consistent",
+        ),
         Index("ix_work_items_team_created", "team_id", "created_at", "id"),
         Index("ix_work_items_team_state", "team_id", "state"),
-        Index("ix_work_items_owner", "owner_id"),
+        Index(
+            "ix_work_items_team_unclaimed_urgent",
+            "team_id",
+            "created_at",
+            "id",
+            postgresql_where=text(
+                "owner_id IS NULL AND priority = 'urgent' AND state = 'open'"
+            ),
+        ),
+        Index(
+            "ix_work_items_owner_urgent",
+            "owner_id",
+            "team_id",
+            "created_at",
+            "id",
+            postgresql_where=text(
+                "owner_id IS NOT NULL AND priority = 'urgent'"
+            ),
+        ),
+        Index(
+            "ix_work_items_owner_due",
+            "owner_id",
+            "due_at",
+            "id",
+            postgresql_where=text(
+                "owner_id IS NOT NULL AND due_at IS NOT NULL "
+                "AND state IN ('in_progress', 'pending_approval')"
+            ),
+        ),
         Index(
             "ix_work_items_search",
             text(

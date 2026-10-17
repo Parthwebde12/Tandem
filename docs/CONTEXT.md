@@ -25,10 +25,12 @@ React + Vite + TypeScript + TanStack Query + Tailwind; Docker Compose.
 
 ## Current status (update after each session)
 - Done:
-  - Project repo created (backend/, frontend/, docs/)
-  - docs/SPEC.md drafted; decisions made in section 10 (approver is not owner/creator, closed is terminal, urgent unclaimed items notify managers/admins, requires_approval changeable by manager/admin only and not after pending_approval)
-  - docs/INVARIANTS.md written (11 invariants)
-  - docker-compose.yml with Postgres
+  - Repo created (backend/, frontend/, docs/)
+  - docs/SPEC.md + docs/INVARIANTS.md (11 invariants); decisions in SPEC section 10
+  - docker-compose.yml with Postgres 16
   - FastAPI skeleton: config.py, db.py (session per request), main.py with /health
-- Now: writing SQLAlchemy models in backend/app/models.py (User, Team, Membership, WorkItem, ItemEvent, Comment)
-- Next: Alembic migration, seed users/teams, JWT auth, permission checks
+  - backend/app/models.py: User, Team, Membership, WorkItem, ItemEvent, Comment, OutboxEvent, IdempotencyKey (JSONB for event/outbox/response payloads)
+  - Commit 3 schema hardening: state/owner consistency constraint, immutable item-event triggers, dashboard partial indexes, and initial Alembic migration
+  - frontend scaffold: Vite + React + TS + Tailwind v4 + TanStack Query + React Router; /api proxy to :8000; api/types.ts mirrors backend enums; Home page shows API health
+- Now: Apply and verify the initial migration against local PostgreSQL (offline SQL generation and model tests pass; Docker was unavailable during verification)
+- Next: Seed demo users/teams, then build JWT authentication; review authorization before implementation

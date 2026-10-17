@@ -1,1 +1,23 @@
-Generic single-database configuration.
+# Database migrations
+
+Run commands from the repository root unless noted otherwise.
+
+Start PostgreSQL:
+
+```powershell
+docker compose up -d db
+```
+
+Apply migrations from the `backend` directory:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m alembic upgrade head
+```
+
+Alembic reads `DATABASE_URL` from `backend\.env`. Use `backend\.env.example`
+as the template for local configuration.
+
+To remove the schema created by the initial migration, run
+`.\.venv\Scripts\python.exe -m alembic downgrade base` from `backend`.
+This drops the OpsDesk tables and their data.
