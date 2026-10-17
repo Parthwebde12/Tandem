@@ -27,7 +27,7 @@ export default function Home() {
             </h2>
             <p className="mt-1 text-sm text-gray-600">
               Team access is based on your membership.
-            </p>
+                    </p>
           </div>
           <span className="rounded-full bg-lime-100 px-3 py-1 text-sm font-semibold text-lime-900">
             {memberships.length}
