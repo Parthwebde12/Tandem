@@ -23,24 +23,28 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
 - Ask before expanding scope. No MCP unless everything else is finished.
 - Do not delete or reset the existing PostgreSQL volume.
 
-## Current status
+## Current status (end of 17-10-2026)
 - Done: docs, docker-compose, FastAPI skeleton (/health), models.py (User,
   Team, Membership, WorkItem, ItemEvent, Comment, OutboxEvent,
-  IdempotencyKey), migration 0001, frontend scaffold (health page).
+  IdempotencyKey), migrations 0001 + 0002 (next_action, append-only
+  item_events trigger), seed script (python -m app.seed --bulk 200),
+  JWT auth (POST /auth/login, GET /auth/me, get_current_user),
+  frontend login + protected routes + app shell (teams and roles shown).
 - Removed: the simple task-board experiment (no login, no teams).
-- Now: migration 0002 (hardening + next_action).
+- Now: permission helper.
 
 ## Next (one commit each)
-1. Migration 0002: state/owner CheckConstraint, item_events immutability
-   trigger, dashboard indexes, next_action column.
-2. Seed script (2 teams, 4 roles, one multi-team user, varied items).
-3. JWT auth (login, get_current_user).
-4. Permission helper (404 for non-members, role checks).
-5. Transition function (audit + outbox in one transaction).
-6. Atomic claim; versioned update (409).
-7. Idempotency keys.
-8. Comments, events, keyset list, search, dashboard.
-9. Outbox worker with retries.
-10. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
-11. Frontend: login, dashboard, list, detail, optimistic claim.
-12. ENGINEERING_DECISIONS.md, real README, known limitations.
+1. Permission helper (404 when no membership, role checks in one place).
+2. Transition function (audit event + outbox row in one transaction).
+3. Atomic claim; versioned update (409).
+4. Idempotency keys.
+5. Comments, events, keyset list, search, dashboard endpoints.
+6. Outbox worker with retries.
+7. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
+8. Frontend: dashboard, item list, item detail, optimistic claim with 409 handling.
+9. ENGINEERING_DECISIONS.md, real README, known limitations.
+
+## Known gaps to mention in limitations
+- No login rate limiting; no refresh tokens or logout endpoint (tokens expire after 60 min).
+- Token stored in localStorage (XSS risk); an httpOnly cookie would be safer.
+- Seed users share a demo password; the seed must not run in production.
