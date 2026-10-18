@@ -128,21 +128,6 @@ docs/       Product specification, invariants, and project context
 frontend/   React and TypeScript application
 ```
 
-## Production and security notes
-
-This project is a challenge/demo application, not a hardened public multi-tenant
-service. Before deploying, configure a production PostgreSQL database, apply
-migrations, set private `DATABASE_URL` and `JWT_SECRET` environment variables,
-serve traffic over HTTPS, and route frontend `/api` requests to the backend.
-Do not use local Compose credentials or the seed command in production.
-
-Known limitations include bearer tokens stored in browser `localStorage`, no
-login rate limiting or refresh tokens, and notifications that are polled rather
-than delivered over websockets.
-
-There is currently no `LICENSE` file. Add a license before making the
-repository public if you want to grant others permission to reuse the code.
-
 ## Further reading
 
 - [Product specification](docs/SPEC.md)
