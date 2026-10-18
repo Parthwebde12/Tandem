@@ -14,6 +14,7 @@ import type {
 import CreateWorkItemDialog from "../components/CreateWorkItemDialog";
 import WorkItemCard from "../components/WorkItemCard";
 import { useAuth } from "../auth/useAuth";
+import { exportWorkItems } from "../features/exportWorkItems";
 import {
   clearSavedViews,
   deleteItemView,
@@ -220,6 +221,15 @@ export default function Items() {
           <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-gray-200">
             {query.data ? `${items.length} shown` : "Team-scoped"}
           </span>
+          <button
+            type="button"
+            onClick={() => exportWorkItems(items)}
+            disabled={items.length === 0}
+            title="Export work items currently loaded in this list"
+            className="rounded-xl border border-[#cfdac4] bg-white px-4 py-2.5 text-sm font-semibold text-[#49633b] transition hover:bg-[#edf2e4] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Export loaded
+          </button>
           {canCreate && (
             <button
               type="button"

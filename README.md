@@ -14,6 +14,7 @@ and is scoped by backend membership checks.
 - Email and password sign-in with team memberships and role-based permissions.
 - Work-item dashboard with status counts and attention queues.
 - Searchable, filterable work-item list with cursor pagination.
+- CSV export for work items currently loaded in the list.
 - Per-user saved filter views stored in the current browser.
 - Item creation, editing, assignment, claiming, release, and workflow
   transitions.
