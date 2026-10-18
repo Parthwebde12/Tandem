@@ -103,10 +103,12 @@ The login page lets you choose an account to explore its permissions:
 
 All seeded accounts use password `password123`.
 
-These shared credentials are public and for local evaluation only. The seed
-command is a no-op if the database already contains users; use a fresh local
-database when setting up demo data.
-Never seed demo accounts into a production database.
+These are intentionally shared credentials for the deployed OpsDesk demo so
+visitors can try different roles. The seed command is a no-op if the database
+already contains users; use a fresh database when setting up demo data. Keep
+the deployed demo limited to fictional sample data. Do not use these accounts
+or this shared-demo setup for a production service containing real or private
+data.
 
 ## Tests and checks
 
