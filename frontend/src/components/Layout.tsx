@@ -9,7 +9,7 @@ export default function Layout() {
     <div className="min-h-screen bg-[#f6f7f2] text-[#20251c]">
       <header className="sticky top-0 z-10 border-b border-[#e4e8dc] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 sm:px-8">
-          <NavLink to="/" className="flex items-center gap-3">
+          <NavLink to="/workspace" className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl bg-[#25351f] text-lg font-bold text-lime-200">
               O
             </span>
@@ -22,7 +22,7 @@ export default function Layout() {
           </NavLink>
           <nav aria-label="Main navigation" className="flex items-center gap-1">
             <NavLink
-              to="/"
+              to="/workspace"
               end
               className={({ isActive }) =>
                 `rounded-lg px-3 py-2 text-sm font-semibold transition ${
