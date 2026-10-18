@@ -1,7 +1,7 @@
-# OpsDesk: Operations Work Management
+# Tandem: Operations Work Management
 
 ## Purpose
-OpsDesk is an internal web app for coordinating incidents, customer issues,
+Tandem is an internal web app for coordinating incidents, customer issues,
 payments, compliance work, and tasks across teams. Each work item records a
 clear next action so teams can coordinate ownership and handoffs.
 

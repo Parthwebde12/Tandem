@@ -1,4 +1,4 @@
-# OpsDesk
+# Tandem
 
 Internal operations workspace for coordinating incidents, customer issues,
 payments, compliance work and team tasks. Every work item has an owner, a next

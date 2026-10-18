@@ -11,10 +11,10 @@ export default function Layout() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 sm:px-8">
           <NavLink to="/workspace" className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl bg-[#25351f] text-lg font-bold text-lime-200">
-              O
+              T
             </span>
             <span>
-              <span className="block text-lg font-bold tracking-tight">OpsDesk</span>
+              <span className="block text-lg font-bold tracking-tight">Tandem</span>
               <span className="hidden text-xs text-gray-500 sm:block">
                 Operations workspace
               </span>

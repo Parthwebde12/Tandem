@@ -30,12 +30,12 @@ export default function Preview() {
     <div className="min-h-screen bg-[#f6f7f2] text-[#20251c]">
       <header className="border-b border-[#e4e8dc] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <Link to="/" className="flex items-center gap-3" aria-label="OpsDesk preview">
+          <Link to="/" className="flex items-center gap-3" aria-label="Tandem preview">
             <span className="flex size-10 items-center justify-center rounded-xl bg-[#25351f] text-lg font-bold text-lime-200">
-              O
+              T
             </span>
             <span>
-              <span className="block text-lg font-bold tracking-tight">OpsDesk</span>
+              <span className="block text-lg font-bold tracking-tight">Tandem</span>
               <span className="hidden text-xs text-gray-500 sm:block">
                 Operations workspace
               </span>
@@ -67,7 +67,7 @@ export default function Preview() {
               <span className="text-[#637b4d]">clear next step.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-gray-600 sm:text-lg">
-              OpsDesk brings incidents, customer issues, payments, and everyday
+              Tandem brings incidents, customer issues, payments, and everyday
               tasks into one team workspace—so everyone knows what needs doing
               and who’s moving it along.
             </p>
@@ -86,7 +86,7 @@ export default function Preview() {
           </div>
 
           <div
-            aria-label="Illustration of the OpsDesk work queue"
+            aria-label="Illustration of the Tandem work queue"
             className="relative rounded-[1.75rem] border border-[#e3e8dc] bg-white p-4 shadow-[0_24px_70px_-40px_rgba(37,53,31,0.45)] sm:p-6"
           >
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -179,7 +179,7 @@ export default function Preview() {
 
       <footer className="border-t border-[#e4e8dc] bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-xs text-gray-500 sm:px-8">
-          <span>OpsDesk · Internal operations workspace</span>
+          <span>Tandem · Internal operations workspace</span>
           <Link to={workspacePath} className="font-semibold text-[#49633b] hover:underline">
             {user ? "Open workspace" : "Team member? Sign in"}
           </Link>

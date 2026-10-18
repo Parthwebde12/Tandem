@@ -61,9 +61,9 @@ export default function Login() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl bg-[#25351f] text-lg font-bold text-lime-200">
-              O
+              T
             </span>
-            <span className="text-lg font-bold tracking-tight">OpsDesk</span>
+            <span className="text-lg font-bold tracking-tight">Tandem</span>
           </Link>
           <Link to="/" className="text-sm font-semibold text-[#49633b] hover:underline">
             Back to preview
@@ -80,7 +80,7 @@ export default function Login() {
             Welcome back
           </h1>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Sign in with your OpsDesk account to continue to your team’s work.
+            Sign in with your Tandem account to continue to your team’s work.
           </p>
 
           <div className="mt-5 rounded-2xl border border-[#e3e8dc] bg-[#f7f9f3] p-4">

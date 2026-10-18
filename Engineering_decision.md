@@ -1,6 +1,6 @@
 # Engineering decisions
 
-OpsDesk is a work-item tracker for teams (incidents, customer issues, payments,
+Tandem is a work-item tracker for teams (incidents, customer issues, payments,
 compliance, tasks). This document explains the decisions that matter most, what
 each one costs, and what is not built. Rules that must never break are in
 docs/INVARIANTS.md.

@@ -1,7 +1,7 @@
 # Project Context
 
 ## Project
-OpsDesk is an internal web app for coordinating operational work (incidents,
+Tandem is an internal web app for coordinating operational work (incidents,
 customer issues, payments, compliance, tasks) across teams. Built for the
 Newtonite Software Engineering Challenge (internship assignment).
 Deadline: Monday 12am. I must be able to explain and modify every part live.

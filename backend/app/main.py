@@ -8,7 +8,7 @@ from app.db import get_db
 from app.routers import auth, items
 
 app = FastAPI(
-    title="OpsDesk",
+    title="Tandem",
     description="Internal operations work-item tracker with teams, roles, audit history and safe concurrent updates.",
 )
 cors_origins = [
