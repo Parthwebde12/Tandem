@@ -18,3 +18,7 @@ Format: `DD-MM-YYYY | Decision or lesson | Why it matters (the failure it preven
 - 18-10-2026 | Outbox row written with the change; worker uses SKIP LOCKED and a unique (event, user) notification key | Notifications are never lost, and a retried event never notifies twice.
 - 18-10-2026 | Tests run on a separate Postgres database | Row locks, unique-index waits and triggers do not exist in SQLite, so the concurrency tests would prove nothing there.
 - 18-10-2026 | Dashboard, searchable work-item filters and detail activity/comments use typed API responses and shared query caching | Keeps views synchronized with server data and prevents UI-only or cross-team assumptions.
+- 18-10-2026 | Item actions mirror backend role and state rules; claim uses an optimistic cache update and adopts the server's current item on 409 | Keeps routine actions quick while preserving the backend as the authority during races.
+- 18-10-2026 | Notification unread state is updated optimistically and refreshed on a 30-second foreground poll | Gives timely updates without a websocket service or a full-page refresh.
+- 18-10-2026 | Signed-out visitors land on an explicitly illustrative product preview; workspace routes stay protected | Lets reviewers understand the product before signing in without exposing private team data.
+- 18-10-2026 | Login offers an explicit one-click seeded demo account alongside normal sign-in | Makes the judge demo easy to enter while keeping demo credentials clearly scoped to a seeded demo database.

@@ -6,7 +6,6 @@ import jwt
 
 from app.core.config import settings
 
-# Used when the email is unknown, so login takes the same time either way.
 DUMMY_HASH = bcrypt.hashpw(b"not-a-real-password", bcrypt.gensalt()).decode()
 
 

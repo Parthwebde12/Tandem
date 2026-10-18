@@ -109,7 +109,6 @@ def seed(bulk: int) -> None:
                 Membership(user_id=bob.id, team_id=support.id, role=TeamRole.MANAGER),
                 Membership(user_id=carol.id, team_id=support.id, role=TeamRole.MEMBER),
                 Membership(user_id=dave.id, team_id=support.id, role=TeamRole.VIEWER),
-                # Bob has a different role in a second team
                 Membership(user_id=bob.id, team_id=engineering.id, role=TeamRole.MEMBER),
                 Membership(user_id=erin.id, team_id=engineering.id, role=TeamRole.MANAGER),
             ]

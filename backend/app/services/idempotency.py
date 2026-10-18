@@ -57,7 +57,7 @@ def run_idempotent(
         .returning(IdempotencyKey.id)
     ).first()
 
-    if claimed is None:  # someone already used this key (and has committed)
+    if claimed is None:
         existing = db.scalar(
             select(IdempotencyKey).where(
                 IdempotencyKey.user_id == user.id, IdempotencyKey.key == key
@@ -89,6 +89,6 @@ def run_idempotent(
         )
         db.commit()
     except Exception:
-        db.rollback()  # failed attempts are not stored; the key stays usable
+        db.rollback()
         raise
     return JSONResponse(status_code=success_status, content=body)

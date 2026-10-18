@@ -146,7 +146,6 @@ def _urgent_unclaimed(item: WorkItem) -> list[tuple[str, dict]]:
     return []
 
 
-# ---------------------------------------------------------------- create
 def create_item(
     db: Session, actor: User, membership: Membership, team_id: UUID, data: ItemCreate
 ) -> WorkItem:
@@ -178,7 +177,6 @@ def create_item(
     return item
 
 
-# ----------------------------------------------------------------- claim
 def claim(db: Session, ctx: ItemContext) -> WorkItem:
     item, actor = ctx.item, ctx.user
     require_role(ctx.membership, TeamRole.MEMBER, "Your role cannot claim items.")
@@ -203,7 +201,6 @@ def claim(db: Session, ctx: ItemContext) -> WorkItem:
     return item
 
 
-# --------------------------------------------------------------- release
 def release(db: Session, ctx: ItemContext, version: int) -> WorkItem:
     item, actor = ctx.item, ctx.user
     check_version(db, item, version)
@@ -236,7 +233,6 @@ def release(db: Session, ctx: ItemContext, version: int) -> WorkItem:
     return item
 
 
-# ---------------------------------------------------------------- assign
 def assign(db: Session, ctx: ItemContext, version: int, assignee_id: UUID) -> WorkItem:
     item, actor = ctx.item, ctx.user
     require_role(ctx.membership, TeamRole.MANAGER, "Only managers can assign items.")
@@ -269,7 +265,6 @@ def assign(db: Session, ctx: ItemContext, version: int, assignee_id: UUID) -> Wo
     return item
 
 
-# ---------------------------------------------------------------- update
 EDIT_FIELDS = ("title", "description", "next_action", "due_at")
 
 
@@ -303,7 +298,7 @@ def update_fields(db: Session, ctx: ItemContext, data: ItemUpdate) -> WorkItem:
 
     changes = {f: v for f, v in sent.items() if getattr(item, f) != v}
     if not changes:
-        return item  # nothing actually changed: no version bump, no event
+        return item
 
     old_all = {f: getattr(item, f) for f in changes}
     ok = guarded_update(db, item, changes, WorkItem.version == data.version)
@@ -331,14 +326,13 @@ def update_fields(db: Session, ctx: ItemContext, data: ItemUpdate) -> WorkItem:
     return item
 
 
-# ------------------------------------------------------------ transition
 @dataclass(frozen=True)
 class Rule:
     action: str
     min_role: TeamRole
     owner_only: bool = False
     needs_approval_flag: bool | None = None
-    approver: bool = False  # separation of duties
+    approver: bool = False
     comment_required: bool = False
 
 
@@ -423,7 +417,6 @@ def transition(db: Session, ctx: ItemContext, data: TransitionRequest) -> WorkIt
     return item
 
 
-# --------------------------------------------------------------- comment
 def add_comment(db: Session, ctx: ItemContext, body: str) -> Comment:
     require_role(ctx.membership, TeamRole.MEMBER, "Your role cannot comment.")
     comment = Comment(work_item_id=ctx.item.id, author_id=ctx.user.id, body=body)

@@ -32,10 +32,12 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
 - Frontend milestone 1 done: dashboard, filtered/searchable item list with
   pagination, item detail, activity history, and comments (including posting
   permissions for viewers vs. members).
-- Frontend remaining: create/edit/assign/transition item controls; optimistic
-  claim with 409 conflict handling; notifications bell and polling.
+- Frontend milestone 2 done: create/edit/assign/transition controls,
+  optimistic claim with 409 conflict handling, and a polling notifications bell.
+- Public preview is the signed-out landing page; workspace routes still require
+  sign-in. The preview uses explicitly illustrative UI, not live or fabricated
+  team records.
 
 ## Next (one commit each)
-1. Frontend: item create/edit/assign/transition controls.
-2. Frontend: optimistic claim with 409 handling, notifications bell, polling.
-3. ENGINEERING_DECISIONS.md, real README, known limitations (see docs/WORKFLOW.md).
+1. Review the frontend preview, sign-in, and workspace against the live demo flow.
+2. ENGINEERING_DECISIONS.md, real README, known limitations (see docs/WORKFLOW.md).

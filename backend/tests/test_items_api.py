@@ -51,7 +51,6 @@ def count(model) -> int:
         return db.scalar(select(func.count()).select_from(model))
 
 
-# ----------------------------------------------------- 1. atomic claim
 def test_ten_concurrent_claims_exactly_one_wins(client, world):
     item_id = make_item(world["team"], world["manager"]["id"])
     claimers = [
@@ -82,7 +81,7 @@ def test_ten_concurrent_claims_exactly_one_wins(client, world):
                 ItemEvent.event_type == ItemEventType.CLAIMED,
             )
         )
-        assert claimed_events == 1  # exactly one audit event
+        assert claimed_events == 1
 
 
 def test_losing_claim_returns_current_item(client, world):
@@ -93,7 +92,6 @@ def test_losing_claim_returns_current_item(client, world):
     assert lost.json()["detail"]["current_item"]["owner"]["full_name"] == "Mia Member"
 
 
-# ------------------------------------------------ 2. stale version (409)
 def test_stale_edit_is_rejected_and_never_overwrites(client, world):
     item_id = make_item(world["team"], world["manager"]["id"])
     h = world["manager"]["headers"]
@@ -123,7 +121,6 @@ def test_concurrent_edits_same_version_only_one_applies(client, world):
     assert sorted(r.status_code for r in results) == [200, 409]
 
 
-# --------------------------------------------------- 3. idempotency
 def test_same_idempotency_key_creates_one_item(client, world):
     body = {"title": "Payment stuck", "type": "payment"}
     h = {**world["member"]["headers"], "Idempotency-Key": "abc-123"}
@@ -163,7 +160,6 @@ def test_concurrent_requests_with_same_key_create_one_item(client, world):
     assert count(WorkItem) == 1
 
 
-# ------------------------------------------ 4. resource-level authz
 def test_non_member_gets_404_everywhere(client, world):
     item_id = make_item(world["team"], world["manager"]["id"])
     h = world["outsider"]["headers"]
@@ -172,7 +168,7 @@ def test_non_member_gets_404_everywhere(client, world):
     assert client.get(f"/items/{item_id}/events", headers=h).status_code == 404
     assert client.get(f"/teams/{world['team']}/members", headers=h).status_code == 404
     listed = client.get("/items", headers=h).json()
-    assert listed["items"] == []  # list never leaks other teams
+    assert listed["items"] == []
 
 
 def test_roles_limit_actions(client, world):
@@ -195,7 +191,6 @@ def test_member_cannot_edit_someone_elses_item(client, world):
     assert r.status_code == 403
 
 
-# ------------------------------------------------- 5. workflow rules
 def transition(client, item_id, who, to, version, comment=None):
     return client.post(
         f"/items/{item_id}/transition",
@@ -216,14 +211,10 @@ def test_approval_flow_and_separation_of_duties(client, world):
         state=WorkItemState.IN_PROGRESS, owner_id=world["member"]["id"],
         requires_approval=True,
     )
-    # cannot skip approval
     assert transition(client, item_id, world["member"], "resolved", 1).status_code == 422
-    # only the owner can submit
     assert transition(client, item_id, world["member2"], "pending_approval", 1).status_code == 403
     assert transition(client, item_id, world["member"], "pending_approval", 1).status_code == 200
-    # owner cannot approve even if they were a manager; members cannot approve
     assert transition(client, item_id, world["member"], "resolved", 2).status_code == 403
-    # rejecting needs a comment
     assert transition(client, item_id, world["manager"], "in_progress", 2).status_code == 422
     ok = transition(client, item_id, world["manager"], "in_progress", 2, "Missing proof")
     assert ok.status_code == 200 and ok.json()["state"] == "in_progress"
@@ -251,7 +242,6 @@ def test_closed_is_terminal(client, world):
     assert r.status_code == 422
 
 
-# --------------------------------------------------- 6. audit history
 def test_every_change_writes_exactly_one_event_in_same_transaction(client, world):
     created = client.post(
         f"/teams/{world['team']}/items",
@@ -278,7 +268,6 @@ def test_audit_events_cannot_be_updated_or_deleted(client, world):
             db.commit()
 
 
-# ------------------------------------------ 7. pagination + search
 def test_keyset_pagination_returns_every_item_once(client, world):
     for i in range(60):
         make_item(world["team"], world["manager"]["id"], title=f"Item {i}")
@@ -324,20 +313,18 @@ def test_dashboard_buckets(client, world):
     assert member_view["awaiting_my_approval"]["total"] == 0
 
 
-# ------------------------------------------- 8. outbox + worker
 def test_outbox_is_written_with_the_change_and_processed_once(client, world):
     client.post(
         f"/teams/{world['team']}/items",
         json={"title": "Site down", "type": "incident", "priority": "urgent"},
         headers=world["member"]["headers"],
     )
-    assert count(OutboxEvent) == 2  # item.created + item.urgent_unclaimed
+    assert count(OutboxEvent) == 2
 
     assert outbox.process_pending() == 2
     first = count(Notification)
-    assert first == 2  # manager + admin notified about the unowned urgent item
+    assert first == 2
 
-    # re-running the handler for an already-processed event must not duplicate
     with SessionLocal() as db:
         event = db.scalars(select(OutboxEvent).where(OutboxEvent.event_type == "item.urgent_unclaimed")).one()
         outbox.handle_event(db, event)
@@ -363,6 +350,6 @@ def test_failed_outbox_event_is_retried_later_not_lost(client, world, monkeypatc
         assert event.processed_at is None
         assert event.attempts == 1
         assert "smtp down" in event.last_error
-        assert event.available_at > datetime.now(timezone.utc)  # backoff scheduled
+        assert event.available_at > datetime.now(timezone.utc)
     monkeypatch.undo()
-    assert outbox.process_pending() == 0  # backoff delays the retry
+    assert outbox.process_pending() == 0

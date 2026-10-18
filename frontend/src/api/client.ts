@@ -37,18 +37,18 @@ export async function apiFetch<T>(
   if (!response.ok) {
     let detail = response.statusText;
     let currentItem: WorkItem | undefined;
-    try {
-      const body = await response.json();
+    const body = await response.json().catch(() => null);
+    if (body && typeof body === "object" && "detail" in body) {
       if (typeof body.detail === "string") {
         detail = body.detail;
       } else if (body.detail && typeof body.detail === "object") {
-        if (typeof body.detail.message === "string") {
+        if ("message" in body.detail && typeof body.detail.message === "string") {
           detail = body.detail.message;
         }
-        currentItem = body.detail.current_item as WorkItem | undefined;
+        if ("current_item" in body.detail) {
+          currentItem = body.detail.current_item as WorkItem | undefined;
+        }
       }
-    } catch {
-      // body was not JSON; keep the status text
     }
     throw new ApiError(response.status, detail, currentItem);
   }

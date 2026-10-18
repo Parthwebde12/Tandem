@@ -145,10 +145,10 @@ class WorkItem(IdMixin, CreatedAtMixin, Base):
     __tablename__ = "work_items"
     __table_args__ = (
         CheckConstraint("version >= 1", name="ck_work_items_version_positive"),
-        CheckConstraint(                                        # NEW
-            "length(trim(next_action)) > 0",                    # NEW
-            name="ck_work_items_next_action_not_blank",         # NEW
-        ),                                                      # NEW
+        CheckConstraint(
+            "length(trim(next_action)) > 0",
+            name="ck_work_items_next_action_not_blank",
+        ),
         CheckConstraint(
             "(state = 'open' AND owner_id IS NULL) OR "
             "(state != 'open' AND owner_id IS NOT NULL)",
@@ -322,7 +322,6 @@ class IdempotencyKey(IdMixin, CreatedAtMixin, Base):
     )
     key: Mapped[str] = mapped_column(String(255), nullable=False)
     request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
-    # NULL while the first request is still in progress
     response_status: Mapped[int | None] = mapped_column(Integer)
     response_body: Mapped[dict[str, object] | None] = mapped_column(JSONB)
 

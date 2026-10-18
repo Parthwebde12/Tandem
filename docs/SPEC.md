@@ -8,13 +8,15 @@ clear next action so teams can coordinate ownership and handoffs.
 ## Current implementation
 - Users sign in with email and password. The API returns a bearer access token,
   and the frontend loads the current user and team memberships from `/auth/me`.
-- The frontend protects the workspace behind authentication and provides a
-  workspace overview with the signed-in user's teams and assigned roles.
+- The signed-out landing page is a public product preview with a sign-in link;
+  its sample interface is explicitly illustrative and does not expose team data.
+- The frontend protects workspace routes behind authentication and provides a
+  dashboard, searchable work-item list, item details, comments, and activity history.
 - Users without team memberships see an explicit empty state.
 - Team membership is checked by shared backend dependencies; non-members
   receive 404 and role-restricted access is checked centrally.
-- Work-item, comment, event, and dashboard API endpoints are not implemented
-  yet. The workspace overview does not display fabricated work-item data.
+- Item creation, editing, assignment, claiming, transitions, and notifications
+  are available in the authenticated workspace, subject to backend role checks.
 - PostgreSQL is the source of truth. Docker Compose publishes it at
   `localhost:5433`; the backend runs locally at `localhost:8000`.
 - This is an internal challenge/demo application, not a public multi-tenant

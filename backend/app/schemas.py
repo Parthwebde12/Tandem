@@ -15,7 +15,6 @@ from app.models import (
 T = TypeVar("T")
 
 
-# ---------- auth ----------
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -39,7 +38,6 @@ class MeResponse(BaseModel):
     memberships: list[TeamMembershipRead]
 
 
-# ---------- shared ----------
 class UserBrief(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -59,7 +57,6 @@ class MemberRead(BaseModel):
     role: TeamRole
 
 
-# ---------- work items ----------
 def _aware(value: datetime | None) -> datetime | None:
     if value is not None and value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)

@@ -36,7 +36,7 @@ def migrated_test_database() -> None:
 
 @pytest.fixture
 def db_clean(migrated_test_database: None) -> None:
-    import app.models  # noqa: F401
+    import app.models
     from app.db import Base, engine
 
     tables = sorted(

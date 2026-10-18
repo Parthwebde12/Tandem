@@ -52,7 +52,6 @@ def item_json(item) -> ItemRead:
     return ItemRead.model_validate(item)
 
 
-# ------------------------------------------------------------------ team
 @router.get("/teams/{team_id}/members", response_model=list[MemberRead])
 def list_members(team_id: UUID, membership: TeamMembership, db: DatabaseSession):
     rows = db.execute(
@@ -89,7 +88,6 @@ def create_item(
     )
 
 
-# ------------------------------------------------------------------ read
 @router.get("/items", response_model=Page[ItemRead])
 def list_items(
     user: CurrentUser,
@@ -185,7 +183,6 @@ def list_comments(
     )
 
 
-# ----------------------------------------------------------------- write
 @router.post("/items/{item_id}/comments", response_model=CommentRead, status_code=201)
 def add_comment(
     payload: CommentCreate,
@@ -290,7 +287,6 @@ def transition_item(
     )
 
 
-# --------------------------------------------------------- notifications
 @router.get("/notifications", response_model=Page[NotificationRead])
 def list_notifications(
     user: CurrentUser,

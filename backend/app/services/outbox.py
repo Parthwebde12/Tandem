@@ -121,7 +121,7 @@ def process_pending(session_factory=SessionLocal, limit: int = 50) -> int:
                 event.processed_at = func.now()
                 db.commit()
                 done += 1
-            except Exception as exc:  # noqa: BLE001 - any failure -> retry later
+            except Exception as exc:
                 db.rollback()
                 attempts = (
                     db.scalar(
@@ -129,7 +129,7 @@ def process_pending(session_factory=SessionLocal, limit: int = 50) -> int:
                     )
                     or 0
                 )
-                delay = min(5 * 2**attempts, 300)  # exponential backoff, capped
+                delay = min(5 * 2**attempts, 300)
                 db.execute(
                     update(OutboxEvent)
                     .where(OutboxEvent.id == event_id)

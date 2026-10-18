@@ -17,7 +17,6 @@ from app.models import (
 from app.schemas import DashboardBucket, DashboardRead, ItemRead, Page
 from app.services.pagination import decode_cursor, encode_cursor
 
-# Must match the GIN index expression in migration 0001.
 SEARCH_VECTOR = literal_column(
     "to_tsvector('english', "
     "coalesce(work_items.title, '') || ' ' || coalesce(work_items.description, ''))"
