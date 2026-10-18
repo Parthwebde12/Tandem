@@ -88,16 +88,24 @@ npm run dev
 Open <http://localhost:5173>. The Vite development server forwards `/api`
 requests to the backend at `localhost:8000`.
 
-### Demo account
+### Demo accounts
 
-The local seed command creates sample users. The login page’s demo button uses:
+The local seed command creates five sample accounts with different team roles.
+The login page lets you choose an account to explore its permissions:
 
-- Email: `alice@opsdesk.dev`
-- Password: `password123`
+| Account | Role | Team access |
+|---|---|---|
+| `alice@opsdesk.dev` | Admin | Support |
+| `bob@opsdesk.dev` | Manager | Support; member in Engineering |
+| `carol@opsdesk.dev` | Member | Support |
+| `dave@opsdesk.dev` | Viewer | Support |
+| `erin@opsdesk.dev` | Manager | Engineering |
 
-Other seeded roles are listed in `backend/app/seed.py`. These shared credentials
-are for local evaluation only. The seed command is a no-op if the database
-already contains users; use a fresh local database when setting up demo data.
+All seeded accounts use password `password123`.
+
+These shared credentials are public and for local evaluation only. The seed
+command is a no-op if the database already contains users; use a fresh local
+database when setting up demo data.
 Never seed demo accounts into a production database.
 
 ## Tests and checks
