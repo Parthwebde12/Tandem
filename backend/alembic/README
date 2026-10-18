@@ -2,13 +2,32 @@
 
 Start PostgreSQL from the repository root with `docker compose up -d db`.
 Compose publishes PostgreSQL on host port `5433`; set `DATABASE_URL` in
-`backend\.env` to match the local template in `backend\.env.example`.
+`backend/.env` to match `backend/.env.example`.
 
-Apply migrations from the backend directory:
+Apply all migrations from the `backend` directory:
+
+```bash
+python -m alembic upgrade head
+```
+
+On Windows, call the virtual environment's Python:
 
 ```powershell
 .\.venv\Scripts\python.exe -m alembic upgrade head
 ```
 
-The second migration adds the simplified task-board table. Older schema tables
-are left in place to avoid deleting any data.
+## Revisions
+
+| Revision | What it does |
+|---|---|
+| `0001_initial_schema` | Users, teams, memberships, work items, comments, events, idempotency keys and outbox tables. |
+| `0002_hardening` | Adds `work_items.next_action` and makes `item_events` append-only with a database trigger. |
+| `0003_notifications` | Adds the notifications table with a unique (event, user) key. |
+
+Create a new migration after changing `app/models.py`:
+
+```bash
+python -m alembic revision --autogenerate -m "describe the change"
+```
+
+Review the generated file before applying it.

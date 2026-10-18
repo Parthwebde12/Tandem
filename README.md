@@ -1,147 +1,220 @@
 # OpsDesk
 
-OpsDesk is an internal operations workspace for coordinating incidents,
-customer issues, payments, compliance work, and team tasks. It brings clear
-ownership, next steps, audit history, and role-aware workflows into one place.
+Internal operations workspace for coordinating incidents, customer issues,
+payments, compliance work and team tasks. Every work item has an owner, a next
+action, an audit trail and role-aware workflows.
 
-The repository contains a FastAPI and PostgreSQL backend and a React,
-TypeScript, and TanStack Query frontend. The public landing page is an
-illustrative product preview; actual team data is available only after sign-in
-and is scoped by backend membership checks.
+Built for the Newtonite Software Engineering Challenge. The focus is
+**correctness under concurrency**: two people claiming the same item, stale
+edits, retried requests and cross-team access are all handled in the backend
+and covered by tests.
 
-## Features
+## Highlights
 
-- Email and password sign-in with team memberships and role-based permissions.
-- Work-item dashboard with status counts and attention queues.
-- Searchable, filterable work-item list with cursor pagination.
-- CSV export for work items currently loaded in the list.
-- Per-user saved filter views stored in the current browser.
-- Item creation, editing, assignment, claiming, release, and workflow
-  transitions.
-- Comments, append-only activity history, and in-app notifications.
-- Optimistic claiming with server reconciliation when another user wins.
-- Version-checked updates and idempotent write support in the API.
+- **One winner per claim.** Claiming is a single conditional `UPDATE`; the
+  database decides the race and the loser gets a `409` with the current item.
+- **Version-checked edits.** Every update sends the `version` it saw, so a stale
+  write can never overwrite newer data.
+- **Idempotent writes.** `Idempotency-Key` is stored in the same transaction as
+  the action, so retries and double clicks produce exactly one effect.
+- **Audit history and notifications via a transactional outbox.** `item_events`
+  is append-only (enforced by a database trigger); a worker turns outbox events
+  into notifications with retries and no duplicates.
+- **Server-side authorization.** Per-team roles (viewer, member, manager, admin).
+  Non-members get `404`, so outsiders cannot tell an item exists.
+- **Scalable reads.** Keyset pagination (max 100), PostgreSQL full-text search
+  and indexed dashboard queries.
 
-## Technology
+Frontend features: sign-in, dashboard, searchable and filterable item list,
+item detail with comments and activity, create/edit/assign/claim/transition
+controls, optimistic claim with conflict handling, notification bell,
+per-user saved filter views (browser storage) and CSV export of the loaded list.
 
-- Frontend: React, TypeScript, Vite, Tailwind CSS, TanStack Query.
-- Backend: Python, FastAPI, SQLAlchemy, Alembic, Pydantic.
-- Database: PostgreSQL.
+## Tech stack
 
-## Local development
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router |
+| Backend | Python 3.11+, FastAPI, SQLAlchemy 2, Alembic, Pydantic v2 |
+| Database | PostgreSQL 16 (Docker Compose) |
+| Tests | pytest + httpx against a real PostgreSQL test database |
 
-### Prerequisites
+## Quick start
 
-- Git
-- Python 3.11 or newer
-- Node.js supported by Vite 8
-- Docker Desktop with Docker Compose
+Prerequisites: Git, Python 3.11+, Node.js (a version supported by Vite 8) and
+Docker with Compose.
 
 ### 1. Start PostgreSQL
 
-From the repository root:
-
-```powershell
+```bash
 docker compose up -d db
 ```
 
-This starts the local PostgreSQL service on port `5433` and uses the Compose
-volume for its data. Do not remove the volume to restart the service.
+PostgreSQL listens on host port `5433`. Do not delete the Compose volume.
 
-### 2. Configure and run the backend
+### Optional: run the backend in Docker
 
-In PowerShell from the repository root:
+```bash
+cd backend
+docker build -t opsdesk-api .
+docker run --rm --env-file .env -p 8000:8000 opsdesk-api
+```
+
+This container expects PostgreSQL to be reachable at the value in `DATABASE_URL`.
+If you are running the database from Docker Compose on the same machine, keep
+using `localhost:5433` for local development.
+
+### 2. Run the backend
+
+macOS / Linux:
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+Windows (PowerShell):
 
 ```powershell
-Set-Location backend
+cd backend
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Edit `backend/.env` and set `JWT_SECRET` to a fresh, private random value. Keep
-`.env` local; it is ignored by Git. Do not reuse the demo password or a
-development JWT secret in a deployed environment.
+Edit `backend/.env` and set `JWT_SECRET` to a private random value
+(for example `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
 
-Apply migrations, optionally seed local demo data, and start the API:
+Then migrate, seed and start the API:
 
-```powershell
+```bash
 python -m alembic upgrade head
 python -m app.seed
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-The API is available at <http://localhost:8000>; interactive API docs are at
-<http://localhost:8000/docs>.
+API: <http://localhost:8000> - interactive docs: <http://localhost:8000/docs>
 
-### 3. Run the frontend
+### 3. Run the outbox worker (separate terminal)
 
-In a second PowerShell window from the repository root:
+Notifications are created by a background worker. Without it, work items still
+work but the notification bell stays empty.
 
-```powershell
-Set-Location frontend
+```bash
+cd backend
+python -m app.worker
+```
+
+### 4. Run the frontend (separate terminal)
+
+```bash
+cd frontend
 npm ci
 npm run dev
 ```
 
-Open <http://localhost:5173>. The Vite development server forwards `/api`
-requests to the backend at `localhost:8000`.
+Open <http://localhost:5173>. Vite proxies `/api` to `localhost:8000`.
 
-### Demo accounts
+## Demo accounts
 
-The local seed command creates five sample accounts with different team roles.
-The login page lets you choose an account to explore its permissions:
+`python -m app.seed` creates five users. All use the password `password123`.
 
-| Account | Role | Team access |
+| Account | Role | Teams |
 |---|---|---|
 | `alice@opsdesk.dev` | Admin | Support |
-| `bob@opsdesk.dev` | Manager | Support; member in Engineering |
+| `bob@opsdesk.dev` | Manager | Support (manager), Engineering (member) |
 | `carol@opsdesk.dev` | Member | Support |
 | `dave@opsdesk.dev` | Viewer | Support |
 | `erin@opsdesk.dev` | Manager | Engineering |
 
-All seeded accounts use password `password123`.
+These shared credentials exist only so reviewers can try each role. The seed is
+a no-op if users already exist. Never use them, or this setup, with real data.
 
-These are intentionally shared credentials for the deployed OpsDesk demo so
-visitors can try different roles. The seed command is a no-op if the database
-already contains users; use a fresh database when setting up demo data. Keep
-the deployed demo limited to fictional sample data. Do not use these accounts
-or this shared-demo setup for a production service containing real or private
-data.
+## Configuration
+
+Set in `backend/.env` (see `backend/.env.example`):
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DATABASE_URL` | yes | SQLAlchemy URL, default `postgresql+psycopg://opsdesk:opsdesk@localhost:5433/opsdesk` |
+| `JWT_SECRET` | yes | Secret used to sign access tokens |
+| `JWT_ALGORITHM` | no | JWT signing algorithm, default `HS256` |
+| `ACCESS_TOKEN_MINUTES` | no | Token lifetime, default `60` |
+| `CORS_ORIGINS` | no | Comma-separated allowed origins, empty by default (the dev proxy needs none) |
+| `TEST_DATABASE_URL` | no | Optional override for the test database, usually a `_test` database name |
 
 ## Tests and checks
 
-Keep the local PostgreSQL service running. Backend tests use a separate
-`opsdesk_test` database derived from `DATABASE_URL`; they do not target the
-normal `opsdesk` database. The local database role needs permission to create
-that test database.
+Keep PostgreSQL running. Tests use a separate `opsdesk_test` database derived
+from `DATABASE_URL`, so your normal data is untouched. The database role must be
+allowed to create databases.
 
-```powershell
-Set-Location backend
-.\.venv\Scripts\python.exe -m pytest -q
+```bash
+cd backend
+python -m pytest -q
 ```
 
-Frontend production build and lint:
-
-```powershell
-Set-Location frontend
-npm run build
+```bash
+cd frontend
 npm run lint
+npm run build
 ```
 
-## Repository layout
+## API at a glance
+
+| Area | Endpoints |
+|---|---|
+| Auth | login, `GET /auth/me` |
+| Items | create, list/search/filter, detail, edit, claim, release, assign, transition |
+| Collaboration | comments, activity events, notifications |
+| Overview | dashboard summary |
+| Ops | `GET /health` |
+
+Full request and response details are in the interactive docs at `/docs`.
+
+## Project layout
 
 ```text
-backend/    FastAPI app, SQLAlchemy models, Alembic migrations, and tests
-docs/       Product specification, invariants, and project context
-frontend/   React and TypeScript application
+backend/
+  app/
+    core/         settings and password/JWT helpers
+    routers/      auth and items endpoints
+    services/     work-item rules, queries, pagination, idempotency, outbox
+    models.py     SQLAlchemy models
+    worker.py     outbox worker
+    seed.py       demo data
+  alembic/        migrations 0001-0003
+  tests/          API, model and permission tests
+frontend/
+  src/
+    api/          typed API client
+    auth/         auth context and provider
+    components/   layout, item actions, dialogs, notifications
+    features/     due status, CSV export, saved views
+    pages/        preview, login, home, items, item detail
+docs/             spec, workflow, invariants, project context
 ```
+
+## Known limitations
+
+- No team or member management screens; membership comes from the seed script.
+- A manager cannot approve an item they created, so a one-manager team needs an
+  admin for approvals.
+- Notifications are in-app only and delivered by polling (30 s), not websockets
+  or email.
+- Failed idempotent requests are not stored and old keys are never cleaned up.
+- Items cannot move between teams, and `closed` is terminal.
+- No login rate limiting, refresh tokens or revocation; the token lives in
+  `localStorage`.
 
 ## Further reading
 
-- [Engineering decisions](ENGINEERING_DECISION.md)
+- [Engineering decisions](Engineering_decision.md)
 - [Product specification](docs/SPEC.md)
-- [Workflow and permissions](docs/WORKFLOW.md)
+- [Workflow and permissions](docs/workflow.md)
 - [System invariants](docs/INVARIANTS.md)
-- [Project context and next steps](docs/CONTEXT.md)
+- [Project context](docs/CONTEXT.md)
