@@ -20,11 +20,38 @@ export class ApiError extends Error {
   }
 }
 
+const MAX_NETWORK_ATTEMPTS = 3;
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Retries only when the request never got an answer (network error). Writes
+// carry an Idempotency-Key, so repeating them cannot apply the change twice.
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  retry: boolean,
+): Promise<Response> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fetch(url, init);
+    } catch (error) {
+      if (!retry || attempt >= MAX_NETWORK_ATTEMPTS) throw error;
+      await sleep(400 * attempt);
+    }
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
   const headers = new Headers(init.headers);
+  const method = (init.method ?? "GET").toUpperCase();
+  const isWrite = method !== "GET" && method !== "HEAD";
+  const isLogin = path === "/auth/login";
+  if (isWrite && !isLogin && !headers.has("Idempotency-Key")) {
+    // One key per user action; the same key is reused if the request is retried.
+    headers.set("Idempotency-Key", crypto.randomUUID());
+  }
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
@@ -33,7 +60,11 @@ export async function apiFetch<T>(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
+  const response = await fetchWithRetry(
+    `${API_BASE_URL}${path}`,
+    { ...init, headers },
+    isWrite && !isLogin,
+  );
 
   if (!response.ok) {
     let detail = response.statusText;
