@@ -25,13 +25,17 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
 
 ## Current status (18-10-2026)
 - Done: docs, docker-compose, models, migrations 0001-0003, seed, JWT auth, team
-  permission dependencies, frontend login shell, FULL BACKEND: items API (create,
+  permission dependencies, FULL BACKEND: items API (create,
   list/search/filter with keyset pagination, detail, edit with version check,
   claim, release, assign, transition), comments, events, dashboard,
   Idempotency-Key, notifications + outbox worker, tests on a separate Postgres DB.
-- Now: frontend item pages.
+- Frontend milestone 1 done: dashboard, filtered/searchable item list with
+  pagination, item detail, activity history, and comments (including posting
+  permissions for viewers vs. members).
+- Frontend remaining: create/edit/assign/transition item controls; optimistic
+  claim with 409 conflict handling; notifications bell and polling.
 
 ## Next (one commit each)
-1. Frontend: dashboard, item list with filters/search, item detail with history and comments.
+1. Frontend: item create/edit/assign/transition controls.
 2. Frontend: optimistic claim with 409 handling, notifications bell, polling.
 3. ENGINEERING_DECISIONS.md, real README, known limitations (see docs/WORKFLOW.md).

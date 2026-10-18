@@ -17,3 +17,4 @@ Format: `DD-MM-YYYY | Decision or lesson | Why it matters (the failure it preven
 - 18-10-2026 | 404 for both missing item and non-member | An outsider cannot learn that an item exists.
 - 18-10-2026 | Outbox row written with the change; worker uses SKIP LOCKED and a unique (event, user) notification key | Notifications are never lost, and a retried event never notifies twice.
 - 18-10-2026 | Tests run on a separate Postgres database | Row locks, unique-index waits and triggers do not exist in SQLite, so the concurrency tests would prove nothing there.
+- 18-10-2026 | Dashboard, searchable work-item filters and detail activity/comments use typed API responses and shared query caching | Keeps views synchronized with server data and prevents UI-only or cross-team assumptions.
