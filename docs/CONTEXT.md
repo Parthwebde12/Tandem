@@ -23,30 +23,15 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
 - Ask before expanding scope. No MCP unless everything else is finished.
 - Do not delete or reset the existing PostgreSQL volume.
 
-## Current status (end of 17-10-2026)
-- Done: docs, docker-compose, FastAPI skeleton (/health), models.py (User,
-  Team, Membership, WorkItem, ItemEvent, Comment, OutboxEvent,
-  IdempotencyKey), migrations 0001 + 0002 (next_action, append-only
-  item_events trigger), seed script (python -m app.seed --bulk 200),
-  JWT auth (POST /auth/login, GET /auth/me, get_current_user),
-  frontend login + protected routes + app shell (teams and roles shown),
-  team permission dependencies (404 without membership, centralized role
-  checks; backend tests passing), workspace overview with team membership
-  cards and a no-team empty state.
-- Removed: the simple task-board experiment (no login, no teams).
-- Now: transition function.
+## Current status (18-10-2026)
+- Done: docs, docker-compose, models, migrations 0001-0003, seed, JWT auth, team
+  permission dependencies, frontend login shell, FULL BACKEND: items API (create,
+  list/search/filter with keyset pagination, detail, edit with version check,
+  claim, release, assign, transition), comments, events, dashboard,
+  Idempotency-Key, notifications + outbox worker, tests on a separate Postgres DB.
+- Now: frontend item pages.
 
 ## Next (one commit each)
-1. Transition function (audit event + outbox row in one transaction).
-2. Atomic claim; versioned update (409).
-3. Idempotency keys.
-4. Comments, events, keyset list, search, dashboard endpoints.
-5. Outbox worker with retries.
-6. Tests on Postgres: concurrent claim, stale 409, idempotency, authz.
-7. Frontend: work-item list, item detail, optimistic claim with 409 handling.
-8. ENGINEERING_DECISIONS.md, real README, known limitations.
-
-## Known gaps to mention in limitations
-- No login rate limiting; no refresh tokens or logout endpoint (tokens expire after 60 min).
-- Token stored in localStorage (XSS risk); an httpOnly cookie would be safer.
-- Seed users share a demo password; the seed must not run in production.
+1. Frontend: dashboard, item list with filters/search, item detail with history and comments.
+2. Frontend: optimistic claim with 409 handling, notifications bell, polling.
+3. ENGINEERING_DECISIONS.md, real README, known limitations (see docs/WORKFLOW.md).
