@@ -325,3 +325,30 @@ class IdempotencyKey(IdMixin, CreatedAtMixin, Base):
     # NULL while the first request is still in progress
     response_status: Mapped[int | None] = mapped_column(Integer)
     response_body: Mapped[dict[str, object] | None] = mapped_column(JSONB)
+
+    
+
+class Notification(IdMixin, CreatedAtMixin, Base):
+    __tablename__ = "notifications"
+    __table_args__ = (
+
+        UniqueConstraint("outbox_event_id", "user_id", name="uq_notifications_event_user"),
+        Index("ix_notifications_user_created", "user_id", "created_at", "id"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    outbox_event_id: Mapped[UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("outbox_events.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    work_item_id: Mapped[UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("work_items.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    kind: Mapped[str] = mapped_column(String(50), nullable=False)
+    message: Mapped[str] = mapped_column(String(500), nullable=False)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
