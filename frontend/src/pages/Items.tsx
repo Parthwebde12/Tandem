@@ -14,17 +14,14 @@ import type {
 import CreateWorkItemDialog from "../components/CreateWorkItemDialog";
 import WorkItemCard from "../components/WorkItemCard";
 import { useAuth } from "../auth/useAuth";
-
-interface ItemFilters {
-  q: string;
-  teamId: string;
-  state: string;
-  priority: string;
-  type: string;
-  mine: boolean;
-  unassigned: boolean;
-  overdue: boolean;
-}
+import {
+  clearSavedViews,
+  deleteItemView,
+  loadSavedViews,
+  saveItemView,
+  type ItemFilters,
+  type SavedItemView,
+} from "../features/savedViews";
 
 const states: WorkItemState[] = [
   "open",
@@ -46,23 +43,26 @@ function label(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function FilterSelect({
+function FilterSelect<T extends string>({
   label: fieldLabel,
   value,
   onChange,
   options,
 }: {
   label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: string[];
+  value: T | "";
+  onChange: (value: T | "") => void;
+  options: readonly T[];
 }) {
   return (
     <label className="block text-sm font-medium text-gray-700">
       {fieldLabel}
       <select
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          const selected = event.target.value;
+          onChange(selected === "" ? "" : options.find((option) => option === selected) ?? value);
+        }}
         className="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800"
       >
         <option value="">All</option>
@@ -96,6 +96,24 @@ export default function Items() {
   const queryClient = useQueryClient();
   const memberships: Membership[] = user?.memberships ?? [];
   const [createOpen, setCreateOpen] = useState(false);
+  const userId = user?.id;
+  const [savedViewState, setSavedViewState] = useState<{
+    views: SavedItemView[];
+    error: string | null;
+  }>(() => {
+    if (!userId) return { views: [], error: null };
+    try {
+      return { views: loadSavedViews(userId), error: null };
+    } catch (error) {
+      return {
+        views: [],
+        error: error instanceof Error ? error.message : "Could not read saved views.",
+      };
+    }
+  });
+  const [savedViewName, setSavedViewName] = useState("");
+  const savedViews = savedViewState.views;
+  const savedViewError = savedViewState.error;
   const [draft, setDraft] = useState<ItemFilters>({
     q: "",
     teamId: "",
@@ -157,6 +175,33 @@ export default function Items() {
     setFilters(empty);
   }
 
+  function persistView(action: () => SavedItemView[]) {
+    if (!userId) return false;
+    try {
+      setSavedViewState({ views: action(), error: null });
+      return true;
+    } catch (error) {
+      setSavedViewState((current) => ({
+        ...current,
+        error: error instanceof Error ? error.message : "Could not update saved views.",
+      }));
+      return false;
+    }
+  }
+
+  function saveCurrentView(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!userId) return;
+    if (persistView(() => saveItemView(userId, savedViewName, filters))) {
+      setSavedViewName("");
+    }
+  }
+
+  function applySavedView(view: SavedItemView) {
+    setDraft({ ...view.filters });
+    setFilters({ ...view.filters });
+  }
+
   return (
     <div className="space-y-7">
       <section className="flex flex-wrap items-end justify-between gap-4">
@@ -189,6 +234,100 @@ export default function Items() {
             </button>
           )}
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-[#e6e9df] bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">Saved views</h2>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Keep your go-to queues handy on this device.
+            </p>
+          </div>
+          {filtersHaveValues(filters) && (
+            <form onSubmit={saveCurrentView} className="flex w-full gap-2 sm:w-auto">
+              <label htmlFor="saved-view-name" className="sr-only">Name this view</label>
+              <input
+                id="saved-view-name"
+                maxLength={50}
+                required
+                value={savedViewName}
+                onChange={(event) => setSavedViewName(event.target.value)}
+                placeholder="e.g. My urgent work"
+                className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm sm:w-48"
+              />
+              <button
+                type="submit"
+                disabled={Boolean(savedViewError)}
+                className="shrink-0 rounded-xl border border-[#cfdac4] px-3 py-2 text-sm font-semibold text-[#49633b] transition hover:bg-[#edf2e4] disabled:opacity-50"
+              >
+                Save view
+              </button>
+            </form>
+          )}
+        </div>
+        {savedViews.length > 0 ? (
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {savedViews.map((view) => (
+              <li
+                key={view.id}
+                className={`inline-flex items-center overflow-hidden rounded-xl border ${
+                  filtersMatch(filters, view.filters)
+                    ? "border-[#bfd0ae] bg-[#f2f6ec]"
+                    : "border-gray-200 bg-white"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => applySavedView(view)}
+                  className="px-3 py-2 text-left text-sm font-medium text-gray-700 hover:text-[#304329]"
+                  title={`Apply ${view.name}`}
+                >
+                  {view.name}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (userId) {
+                      persistView(() => deleteItemView(userId, view.id));
+                    }
+                  }}
+                  aria-label={`Delete saved view ${view.name}`}
+                  className="border-l border-inherit px-2 py-2 text-sm text-gray-400 hover:bg-rose-50 hover:text-rose-700"
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : !savedViewError ? (
+          <p className="mt-3 text-xs text-gray-400">
+            Apply some filters to save your first view.
+          </p>
+        ) : null}
+        {savedViewError && (
+          <div role="alert" className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-rose-700">
+            <span>{savedViewError}</span>
+            <button
+              type="button"
+              onClick={() => {
+                if (!userId) return;
+                try {
+                  clearSavedViews(userId);
+                  setSavedViewState({ views: [], error: null });
+                } catch {
+                  setSavedViewState((current) => ({
+                    ...current,
+                    error: "Browser storage could not be cleared.",
+                  }));
+                }
+              }}
+              className="font-semibold underline"
+            >
+              Clear saved views
+            </button>
+          </div>
+        )}
       </section>
 
       <form
@@ -345,5 +484,31 @@ export default function Items() {
         />
       )}
     </div>
+  );
+}
+
+function filtersHaveValues(filters: ItemFilters) {
+  return Boolean(
+    filters.q.trim() ||
+      filters.teamId ||
+      filters.state ||
+      filters.priority ||
+      filters.type ||
+      filters.mine ||
+      filters.unassigned ||
+      filters.overdue,
+  );
+}
+
+function filtersMatch(left: ItemFilters, right: ItemFilters) {
+  return (
+    left.q === right.q &&
+    left.teamId === right.teamId &&
+    left.state === right.state &&
+    left.priority === right.priority &&
+    left.type === right.type &&
+    left.mine === right.mine &&
+    left.unassigned === right.unassigned &&
+    left.overdue === right.overdue
   );
 }
