@@ -12,6 +12,8 @@ clear next action so teams can coordinate ownership and handoffs.
   its sample interface is explicitly illustrative and does not expose team data.
 - The frontend protects workspace routes behind authentication and provides a
   dashboard, searchable work-item list, item details, comments, and activity history.
+- Users can save named work-item filter views in browser storage; saved views
+  are scoped by user and are not synchronized across devices.
 - Users without team memberships see an explicit empty state.
 - Team membership is checked by shared backend dependencies; non-members
   receive 404 and role-restricted access is checked centrally.
@@ -49,14 +51,18 @@ clear next action so teams can coordinate ownership and handoffs.
   return 404 when the user is not a member and 403 when the user's role is
   insufficient.
 
-## Planned work
-- Transactional work-item transitions that record an audit event and an outbox
-  event together.
-- Atomic claiming and version-checked updates that reject stale versions.
-- Idempotent writes, comments, event history, team-scoped lists and search,
-  dashboards, and an outbox worker.
-- Frontend work-item list and detail views, including conflict handling for
-  optimistic claims.
+## Work-item workflows
+- Claims are atomic; concurrent claim attempts have one winner.
+- Edits, assignment, release, and transitions use version checks and return a
+  conflict response when the item has changed.
+- Valid state transitions enforce role, ownership, approval, and separation of
+  duties requirements on the backend.
+- Item changes and audit events are committed together. Outbox events drive
+  in-app notifications.
+- Work-item lists and history endpoints use cursor pagination. Search and
+  filters are team-scoped by the backend.
+- The frontend reconciles optimistic claims with the current server item after
+  a conflict, and polls notifications while the workspace is open.
 
 ## Security and known limitations
 - Access tokens expire after 60 minutes; refresh tokens, logout revocation, and

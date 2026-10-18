@@ -34,6 +34,7 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
   permissions for viewers vs. members).
 - Frontend milestone 2 done: create/edit/assign/transition controls,
   optimistic claim with 409 conflict handling, and a polling notifications bell.
+- Saved item-filter views are stored per user in browser storage.
 - Public preview is the signed-out landing page; workspace routes still require
   sign-in. The preview uses explicitly illustrative UI, not live or fabricated
   team records.

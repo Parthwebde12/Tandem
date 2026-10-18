@@ -21,4 +21,5 @@ Format: `DD-MM-YYYY | Decision or lesson | Why it matters (the failure it preven
 - 18-10-2026 | Item actions mirror backend role and state rules; claim uses an optimistic cache update and adopts the server's current item on 409 | Keeps routine actions quick while preserving the backend as the authority during races.
 - 18-10-2026 | Notification unread state is updated optimistically and refreshed on a 30-second foreground poll | Gives timely updates without a websocket service or a full-page refresh.
 - 18-10-2026 | Signed-out visitors land on an explicitly illustrative product preview; workspace routes stay protected | Lets reviewers understand the product before signing in without exposing private team data.
+- 18-10-2026 | Saved item filters are typed, per-user browser presets with validated storage data | Lets users reopen frequent queues without adding backend state or mixing views between accounts.
 - 18-10-2026 | Login offers an explicit one-click seeded demo account alongside normal sign-in | Makes the judge demo easy to enter while keeping demo credentials clearly scoped to a seeded demo database.
