@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import Notifications from "./Notifications";
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -47,6 +48,7 @@ export default function Layout() {
             </NavLink>
           </nav>
           <div className="flex items-center gap-3 text-sm">
+            <Notifications />
             <span className="hidden text-gray-600 sm:block">{user?.full_name}</span>
             <button
               onClick={logout}

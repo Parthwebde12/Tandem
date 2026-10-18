@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ApiError, apiFetch } from "../api/client";
 import type { ItemComment, ItemEvent, Page, WorkItem } from "../api/types";
+import ItemActions from "../components/ItemActions";
 import { StateBadge } from "../components/WorkItemCard";
 import { useAuth } from "../auth/useAuth";
 
@@ -179,6 +180,8 @@ export default function ItemDetail() {
           </p>
         )}
       </section>
+
+      <ItemActions item={item} membership={membership} />
 
       <div className="grid items-start gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-2xl border border-[#e6e9df] bg-white p-5 shadow-sm sm:p-6">

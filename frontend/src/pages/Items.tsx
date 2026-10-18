@@ -1,7 +1,9 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { ApiError, apiFetch } from "../api/client";
 import type {
+  CreateWorkItem,
   Membership,
   Page,
   WorkItem,
@@ -9,6 +11,7 @@ import type {
   WorkItemState,
   WorkItemType,
 } from "../api/types";
+import CreateWorkItemDialog from "../components/CreateWorkItemDialog";
 import WorkItemCard from "../components/WorkItemCard";
 import { useAuth } from "../auth/useAuth";
 
@@ -89,7 +92,10 @@ function buildParams(filters: ItemFilters, cursor: string | null) {
 
 export default function Items() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const memberships: Membership[] = user?.memberships ?? [];
+  const [createOpen, setCreateOpen] = useState(false);
   const [draft, setDraft] = useState<ItemFilters>({
     q: "",
     teamId: "",
@@ -111,6 +117,22 @@ export default function Items() {
     getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
   });
   const items = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const createItem = useMutation({
+    mutationFn: ({ teamId, payload }: { teamId: string; payload: CreateWorkItem }) =>
+      apiFetch<WorkItem>(`/teams/${teamId}/items`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: async (item) => {
+      setCreateOpen(false);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["items"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+      ]);
+      navigate(`/items/${item.id}`);
+    },
+  });
+  const canCreate = memberships.some((membership) => membership.role !== "viewer");
   const loadNextPage = () => {
     void query.fetchNextPage();
   };
@@ -149,9 +171,24 @@ export default function Items() {
             Search and filter the work across your teams.
           </p>
         </div>
-        <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-gray-200">
-          {query.data ? `${items.length} shown` : "Team-scoped"}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-gray-200">
+            {query.data ? `${items.length} shown` : "Team-scoped"}
+          </span>
+          {canCreate && (
+            <button
+              type="button"
+              onClick={() => {
+                createItem.reset();
+                setCreateOpen(true);
+              }}
+              className="rounded-xl bg-[#304329] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#25351f]"
+            >
+              <span aria-hidden="true" className="mr-1.5">+</span>
+              New item
+            </button>
+          )}
+        </div>
       </section>
 
       <form
@@ -291,6 +328,21 @@ export default function Items() {
             </p>
           )}
         </>
+      )}
+      {createOpen && (
+        <CreateWorkItemDialog
+          memberships={memberships.filter((membership) => membership.role !== "viewer")}
+          pending={createItem.isPending}
+          error={
+            createItem.error instanceof ApiError
+              ? createItem.error.message
+              : createItem.isError
+                ? "Could not create the item. Please try again."
+                : null
+          }
+          onClose={() => setCreateOpen(false)}
+          onCreate={(teamId, payload) => createItem.mutate({ teamId, payload })}
+        />
       )}
     </div>
   );

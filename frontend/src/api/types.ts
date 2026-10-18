@@ -48,6 +48,16 @@ export interface WorkItem {
   updated_at: string;
 }
 
+export interface CreateWorkItem {
+  title: string;
+  description: string | null;
+  next_action: string;
+  type: WorkItemType;
+  priority: WorkItemPriority;
+  requires_approval: boolean;
+  due_at: string | null;
+}
+
 export interface UserBrief {
   id: string;
   full_name: string;
@@ -81,6 +91,22 @@ export interface ItemComment {
   author: UserBrief;
   body: string;
   created_at: string;
+}
+
+export interface TeamMember {
+  user_id: string;
+  full_name: string;
+  email: string;
+  role: TeamRole;
+}
+
+export interface Notification {
+  id: string;
+  kind: string;
+  message: string;
+  work_item_id: string;
+  created_at: string;
+  read_at: string | null;
 }
 
 export interface DashboardBucket {
