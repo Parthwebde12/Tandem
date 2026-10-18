@@ -1,4 +1,11 @@
-import type { WorkItemPriority, WorkItemState, WorkItemType } from "../api/types";
+import {
+  WORK_ITEM_PRIORITIES,
+  WORK_ITEM_STATES,
+  WORK_ITEM_TYPES,
+  type WorkItemPriority,
+  type WorkItemState,
+  type WorkItemType,
+} from "../api/types";
 
 export interface ItemFilters {
   q: string;
@@ -19,21 +26,6 @@ export interface SavedItemView {
 }
 
 const viewKey = (userId: string) => `opsdesk_saved_views_${userId}`;
-const states: WorkItemState[] = [
-  "open",
-  "in_progress",
-  "pending_approval",
-  "resolved",
-  "closed",
-];
-const priorities: WorkItemPriority[] = ["low", "medium", "high", "urgent"];
-const types: WorkItemType[] = [
-  "incident",
-  "customer_issue",
-  "payment",
-  "compliance",
-  "task",
-];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -44,9 +36,10 @@ function isItemFilters(value: unknown): value is ItemFilters {
   return (
     typeof value.q === "string" &&
     typeof value.teamId === "string" &&
-    (value.state === "" || states.includes(value.state as WorkItemState)) &&
-    (value.priority === "" || priorities.includes(value.priority as WorkItemPriority)) &&
-    (value.type === "" || types.includes(value.type as WorkItemType)) &&
+    (value.state === "" || WORK_ITEM_STATES.includes(value.state as WorkItemState)) &&
+    (value.priority === "" ||
+      WORK_ITEM_PRIORITIES.includes(value.priority as WorkItemPriority)) &&
+    (value.type === "" || WORK_ITEM_TYPES.includes(value.type as WorkItemType)) &&
     typeof value.mine === "boolean" &&
     typeof value.unassigned === "boolean" &&
     typeof value.overdue === "boolean"

@@ -2,14 +2,14 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiError, apiFetch } from "../api/client";
-import type {
-  CreateWorkItem,
-  Membership,
-  Page,
-  WorkItem,
-  WorkItemPriority,
-  WorkItemState,
-  WorkItemType,
+import {
+  WORK_ITEM_PRIORITIES,
+  WORK_ITEM_STATES,
+  WORK_ITEM_TYPES,
+  type CreateWorkItem,
+  type Membership,
+  type Page,
+  type WorkItem,
 } from "../api/types";
 import CreateWorkItemDialog from "../components/CreateWorkItemDialog";
 import WorkItemCard from "../components/WorkItemCard";
@@ -23,22 +23,6 @@ import {
   type ItemFilters,
   type SavedItemView,
 } from "../features/savedViews";
-
-const states: WorkItemState[] = [
-  "open",
-  "in_progress",
-  "pending_approval",
-  "resolved",
-  "closed",
-];
-const priorities: WorkItemPriority[] = ["urgent", "high", "medium", "low"];
-const types: WorkItemType[] = [
-  "incident",
-  "customer_issue",
-  "payment",
-  "compliance",
-  "task",
-];
 
 function label(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (character) => character.toUpperCase());
@@ -377,19 +361,19 @@ export default function Items() {
             label="Status"
             value={draft.state}
             onChange={(state) => setDraft({ ...draft, state })}
-            options={states}
+            options={WORK_ITEM_STATES}
           />
           <FilterSelect
             label="Priority"
             value={draft.priority}
             onChange={(priority) => setDraft({ ...draft, priority })}
-            options={priorities}
+            options={WORK_ITEM_PRIORITIES}
           />
           <FilterSelect
             label="Work type"
             value={draft.type}
             onChange={(type) => setDraft({ ...draft, type })}
-            options={types}
+            options={WORK_ITEM_TYPES}
           />
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">

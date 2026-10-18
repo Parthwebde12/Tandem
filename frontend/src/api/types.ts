@@ -1,17 +1,22 @@
 export type TeamRole = "viewer" | "member" | "manager" | "admin";
-export type WorkItemType =
-  | "incident"
-  | "customer_issue"
-  | "payment"
-  | "compliance"
-  | "task";
-export type WorkItemState =
-  | "open"
-  | "in_progress"
-  | "pending_approval"
-  | "resolved"
-  | "closed";
-export type WorkItemPriority = "low" | "medium" | "high" | "urgent";
+export const WORK_ITEM_TYPES = [
+  "incident",
+  "customer_issue",
+  "payment",
+  "compliance",
+  "task",
+] as const;
+export const WORK_ITEM_STATES = [
+  "open",
+  "in_progress",
+  "pending_approval",
+  "resolved",
+  "closed",
+] as const;
+export const WORK_ITEM_PRIORITIES = ["low", "medium", "high", "urgent"] as const;
+export type WorkItemType = (typeof WORK_ITEM_TYPES)[number];
+export type WorkItemState = (typeof WORK_ITEM_STATES)[number];
+export type WorkItemPriority = (typeof WORK_ITEM_PRIORITIES)[number];
 export interface Membership {
   team_id: string;
   team_name: string;
