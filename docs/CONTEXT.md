@@ -6,7 +6,7 @@ customer issues, payments, compliance, tasks) across teams. Built for the
 Newtonite Software Engineering Challenge (internship assignment).
 Deadline: Monday 12am. I must be able to explain and modify every part live.
 
-Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
+Deliverables: working code, run instructions, ENGINEERING_DECISION.md
 (~5 decisions + trade-offs), automated tests, known limitations, live demo.
 
 ## Stack
@@ -41,4 +41,4 @@ Deliverables: working code, run instructions, ENGINEERING_DECISIONS.md
 
 ## Next (one commit each)
 1. Review the frontend preview, sign-in, and workspace against the live demo flow.
-2. ENGINEERING_DECISIONS.md, real README, known limitations (see docs/WORKFLOW.md).
+2. ENGINEERING_DECISION.md, real README, known limitations (see docs/WORKFLOW.md).

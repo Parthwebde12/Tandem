@@ -140,7 +140,8 @@ frontend/   React and TypeScript application
 
 ## Further reading
 
+- [Engineering decisions](ENGINEERING_DECISION.md)
 - [Product specification](docs/SPEC.md)
-- [Workflow and permissions](docs/workflow.md)
+- [Workflow and permissions](docs/WORKFLOW.md)
 - [System invariants](docs/INVARIANTS.md)
 - [Project context and next steps](docs/CONTEXT.md)
