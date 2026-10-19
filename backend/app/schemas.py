@@ -13,6 +13,7 @@ from app.models import (
 )
 
 T = TypeVar("T")
+EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
 
 class LoginRequest(BaseModel):
@@ -23,6 +24,42 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class SignupTeam(BaseModel):
+    id: UUID
+    name: str
+
+
+class SignupOptions(BaseModel):
+    enabled: bool
+    teams: list[SignupTeam]
+    roles: list[TeamRole]
+
+
+class RegisterRequest(BaseModel):
+    full_name: str = Field(min_length=1, max_length=200)
+    email: str = Field(min_length=3, max_length=320, pattern=EMAIL_PATTERN)
+    password: str = Field(min_length=8, max_length=72)
+    team_id: UUID
+    role: TeamRole
+
+    @field_validator("full_name", "email", mode="before")
+    @classmethod
+    def _strip(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("email")
+    @classmethod
+    def _lower(cls, value: str) -> str:
+        return value.lower()
+
+    @field_validator("password")
+    @classmethod
+    def _bcrypt_limit(cls, value: str) -> str:
+        if len(value.encode()) > 72:
+            raise ValueError("Password must be at most 72 bytes.")
+        return value
 
 
 class TeamMembershipRead(BaseModel):
