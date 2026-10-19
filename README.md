@@ -119,9 +119,20 @@ npm run dev
 
 Open <http://localhost:5173>. Vite proxies `/api` to `localhost:8000`.
 
-## Demo accounts
+For a disposable demo environment only, set `OPEN_SIGNUP=true` in the backend
+environment and restart the API to allow account creation at `/signup`. Signup
+lets anyone choose a role, including admin, so do not enable it when the API is
+connected to real or shared data.
 
-`python -m app.seed` creates five users. All use the password `password123`.
+## Accounts
+
+With `OPEN_SIGNUP=true` (demo mode), open `/signup`, enter your name and email,
+choose a team and role, and your account will be signed in automatically.
+Sign-up is disabled by default; do not enable it for real data because anyone
+can choose their own role.
+
+`python -m app.seed` also creates five sample users. All use the password
+`password123`.
 
 | Account | Role | Teams |
 |---|---|---|
@@ -145,13 +156,16 @@ Set in `backend/.env` (see `backend/.env.example`):
 | `JWT_ALGORITHM` | no | JWT signing algorithm, default `HS256` |
 | `ACCESS_TOKEN_MINUTES` | no | Token lifetime, default `60` |
 | `CORS_ORIGINS` | no | Comma-separated allowed origins, empty by default (the dev proxy needs none) |
+| `OPEN_SIGNUP` | no | Enables demo sign-up with user-selected team and role; defaults to `false` |
 | `TEST_DATABASE_URL` | no | Optional override for the test database, usually a `_test` database name |
 
 ## Tests and checks
 
 Keep PostgreSQL running. Tests use a separate `opsdesk_test` database derived
-from `DATABASE_URL`, so your normal data is untouched. The database role must be
-allowed to create databases.
+from `DATABASE_URL`, creating it if it does not exist, so your normal data is
+untouched. The database role must be allowed to create databases. If your
+database provider does not allow `CREATE DATABASE`, create the `_test` database
+yourself or point `TEST_DATABASE_URL` at an existing dedicated test database.
 
 ```bash
 cd backend

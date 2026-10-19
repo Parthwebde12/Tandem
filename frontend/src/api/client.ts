@@ -47,8 +47,8 @@ export async function apiFetch<T>(
   const headers = new Headers(init.headers);
   const method = (init.method ?? "GET").toUpperCase();
   const isWrite = method !== "GET" && method !== "HEAD";
-  const isLogin = path === "/auth/login";
-  if (isWrite && !isLogin && !headers.has("Idempotency-Key")) {
+  const isAuthEntry = path === "/auth/login" || path === "/auth/register";
+  if (isWrite && !isAuthEntry && !headers.has("Idempotency-Key")) {
     // One key per user action; the same key is reused if the request is retried.
     headers.set("Idempotency-Key", crypto.randomUUID());
   }
@@ -63,7 +63,7 @@ export async function apiFetch<T>(
   const response = await fetchWithRetry(
     `${API_BASE_URL}${path}`,
     { ...init, headers },
-    isWrite && !isLogin,
+    isWrite && !isAuthEntry,
   );
 
   if (!response.ok) {

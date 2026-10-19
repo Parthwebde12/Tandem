@@ -96,4 +96,7 @@ audit immutability, pagination, and the worker's retry and duplicate handling.
 - Items cannot move between teams, and `closed` is terminal.
 - No login rate limiting, refresh tokens or token revocation; the token is kept in
   browser storage.
-- Demo accounts and the one-click demo login are for local review only.
+- Sign-up lets anyone choose their own role. This is only for demo mode
+  (`OPEN_SIGNUP=true`, off by default); a real deployment should use admin
+  invitations instead.
+- Demo accounts are for local review only.
