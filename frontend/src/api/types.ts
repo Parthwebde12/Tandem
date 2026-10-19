@@ -126,3 +126,18 @@ export interface Dashboard {
   awaiting_my_approval: DashboardBucket;
   unclaimed_urgent: DashboardBucket;
 }
+
+
+export interface SignupOptions {
+  enabled: boolean;
+  teams: { id: string; name: string }[];
+  roles: TeamRole[];
+}
+
+export interface RegisterPayload {
+  full_name: string;
+  email: string;
+  password: string;
+  team_id: string;
+  role: TeamRole;
+}

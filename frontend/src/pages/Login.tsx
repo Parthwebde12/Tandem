@@ -61,9 +61,9 @@ export default function Login() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl bg-[#25351f] text-lg font-bold text-lime-200">
-              T
+              O
             </span>
-            <span className="text-lg font-bold tracking-tight">Tandem</span>
+            <span className="text-lg font-bold tracking-tight">OpsDesk</span>
           </Link>
           <Link to="/" className="text-sm font-semibold text-[#49633b] hover:underline">
             Back to preview
@@ -80,7 +80,7 @@ export default function Login() {
             Welcome back
           </h1>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Sign in with your Tandem account to continue to your team’s work.
+            Sign in with your OpsDesk account to continue to your team’s work.
           </p>
 
           <div className="mt-5 rounded-2xl border border-[#e3e8dc] bg-[#f7f9f3] p-4">
@@ -146,7 +146,13 @@ export default function Login() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div className="mt-6 flex items-center gap-3 text-xs text-gray-400">
+            <span className="h-px flex-1 bg-gray-200" />
+            or use your own account
+            <span className="h-px flex-1 bg-gray-200" />
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <label className="block text-sm font-medium text-gray-700">
               Email
               <input
@@ -185,6 +191,13 @@ export default function Login() {
               {submitting ? "Signing in…" : "Sign in with your account"}
             </button>
           </form>
+
+          <p className="mt-5 text-center text-sm text-gray-500">
+            New here?{" "}
+            <Link to="/signup" className="font-semibold text-[#49633b] hover:underline">
+              Create your account
+            </Link>
+          </p>
         </section>
       </div>
     </main>

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
 from app.core.config import settings
@@ -28,6 +28,24 @@ settings.database_url = test_database_url
 def migrated_test_database() -> None:
     from alembic import command
     from alembic.config import Config
+
+    admin_engine = create_engine(
+        database_url.set(database="postgres"),
+        isolation_level="AUTOCOMMIT",
+    )
+    try:
+        with admin_engine.connect() as connection:
+            database_exists = connection.scalar(
+                text("SELECT 1 FROM pg_database WHERE datname = :name"),
+                {"name": database_name},
+            )
+            if not database_exists:
+                quoted_name = connection.dialect.identifier_preparer.quote(
+                    database_name
+                )
+                connection.exec_driver_sql(f"CREATE DATABASE {quoted_name}")
+    finally:
+        admin_engine.dispose()
 
     backend_dir = Path(__file__).resolve().parents[1]
     alembic_config = Config(str(backend_dir / "alembic.ini"))

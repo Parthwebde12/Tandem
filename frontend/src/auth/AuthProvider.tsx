@@ -1,7 +1,7 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, apiFetch, tokenStore } from "../api/client";
-import type { Me, TokenResponse } from "../api/types";
+import type { Me, RegisterPayload, TokenResponse } from "../api/types";
 import { AuthContext, type AuthState } from "./context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -27,12 +27,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     retry: false,
   });
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const result = await apiFetch<TokenResponse>("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
+  const startSession = useCallback(
+    async (result: TokenResponse) => {
       tokenStore.set(result.access_token);
       setHasToken(true);
       await queryClient.fetchQuery({
@@ -42,6 +38,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     [fetchMe, queryClient],
+  );
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const result = await apiFetch<TokenResponse>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      await startSession(result);
+    },
+    [startSession],
+  );
+
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      const result = await apiFetch<TokenResponse>("/auth/register", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      await startSession(result);
+    },
+    [startSession],
   );
 
   const logout = useCallback(() => {
@@ -54,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user: hasToken ? (meQuery.data ?? null) : null,
     isLoading: hasToken && meQuery.isPending,
     login,
+    register,
     logout,
   };
 
